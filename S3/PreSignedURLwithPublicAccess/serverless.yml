@@ -1,0 +1,57 @@
+service: my-service
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  region: "us-west-1"
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:GetObject
+        - s3:PutObject
+      Resource: !Join ["/", [!GetAtt MyBucket.Arn, "*"]]
+  environment:
+    REGION: ${aws:region}
+    BUCKET_NAME: !Ref MyBucket
+
+functions:
+  GetPreSignedURL:
+    handler: GetPreSignedURL.handler
+    events:
+      - httpApi:
+          path: /
+          method: get
+
+package:
+  individually: true
+
+plugins:
+  - serverless-jetpack
+
+resources:
+  Resources:
+    MyBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        CorsConfiguration:
+          CorsRules:
+            - AllowedHeaders:
+                - "*"
+              AllowedMethods:
+                - GET
+                - PUT
+                - HEAD
+                - POST
+              AllowedOrigins:
+                - "*"
+    BucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket: !Ref MyBucket
+        PolicyDocument:
+          Statement:
+            - Action:
+                - s3:GetObject
+              Effect: Allow
+              Resource: !Join ["/", [!GetAtt MyBucket.Arn, "*"]]
+              Principal: "*"
