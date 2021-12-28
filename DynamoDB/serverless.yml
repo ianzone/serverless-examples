@@ -1,0 +1,45 @@
+service: dynamodb-example
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  region: "us-west-1"
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:GutItem
+      Resource:
+        - !GetAtt MyTable.Arn
+  environment:
+    REGION: ${aws:region}
+    TABLE_NAME: !Ref MyTable
+
+functions:
+  DynamoPUT:
+    handler: DynamoPUT.handler
+    events:
+      - httpApi:
+          path: /
+          method: put
+
+package:
+  individually: true
+
+plugins:
+  - serverless-esbuild
+
+resources:
+  Resources:
+    MyTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
