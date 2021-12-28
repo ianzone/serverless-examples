@@ -7,8 +7,7 @@ provider:
   iamRoleStatements:
     - Effect: Allow
       Action:
-        - dynamodb:PutItem
-        - dynamodb:GutItem
+        - dynamodb:*
       Resource:
         - !GetAtt MyTable.Arn
   environment:

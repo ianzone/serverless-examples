@@ -1,5 +1,5 @@
-const { DynamoDBClient, PutItemCommand } = require("@aws-sdk/client-dynamodb");
-const { marshall } = require("@aws-sdk/util-dynamodb");
+const { DynamoDBClient, GetItemCommand } = require("@aws-sdk/client-dynamodb");
+const { marshall, unmarshall } = require("@aws-sdk/util-dynamodb");
 const client = new DynamoDBClient({ region: process.env.REGION });
 const TABLE_NAME = process.env.TABLE_NAME;
 
@@ -10,20 +10,22 @@ exports.handler = async (event, context) => {
     requestId: context.awsRequestId
   };
   try {
-    const { id, jsonItem } = JSON.parse(event.body);
-    console.log(event.body)
+    const query = event.queryStringParameters;
+    console.log(query)
+    const id = query.id;
+    const attr = query.attr;
 
     const params = {
       TableName: TABLE_NAME,
-      Item: marshall({
+      Key: marshall({
         id: id,
-        data: jsonItem,
       }),
+      ProjectionExpression: attr,
     };
-    await client.send(new PutItemCommand(params));
+    const data = await client.send(new GetItemCommand(params));
     return {
       statusCode: 200,
-      body: JSON.stringify(logTrace),
+      body: JSON.stringify({ ...logTrace, ...unmarshall(data.Item) }),
     }
   } catch (err) {
     console.error('ERROR', err);
