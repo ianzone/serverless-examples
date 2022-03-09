@@ -26,7 +26,7 @@ package:
   individually: true
 
 plugins:
-  - serverless-esbuild
+  - serverless-jetpack
 
 resources:
   Resources:

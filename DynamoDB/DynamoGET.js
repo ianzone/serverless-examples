@@ -11,7 +11,7 @@ exports.handler = async (event, context) => {
   };
   try {
     const query = event.queryStringParameters;
-    console.log(query)
+    console.log('queryStringParameters', query)
     const id = query.id;
     const attr = query.attr;
 
@@ -22,10 +22,11 @@ exports.handler = async (event, context) => {
       }),
       ProjectionExpression: attr,
     };
-    const data = await client.send(new GetItemCommand(params));
+    const data = unmarshall((await client.send(new GetItemCommand(params))).Item);
+    console.log('Item', data)
     return {
       statusCode: 200,
-      body: JSON.stringify({ ...logTrace, ...unmarshall(data.Item) }),
+      body: JSON.stringify({ ...logTrace, ...data }),
     }
   } catch (err) {
     console.error('ERROR', err);

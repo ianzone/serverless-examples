@@ -13,6 +13,6 @@
     "@aws-sdk/s3-request-presigner": "^3.45.0"
   },
   "devDependencies": {
-    "serverless-esbuild": "^1.23.2"
+    "serverless-jetpack": "^0.11.1"
   }
 }

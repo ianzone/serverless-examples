@@ -1,0 +1,28 @@
+service: fastify-ts-example
+
+frameworkVersion: "3"
+configValidationMode: error
+useDotenv: true
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  tags:
+    user: ian
+    service: ${self:service}
+
+functions:
+  fastify:
+    handler: dist/lambda.handler
+    events:
+      - httpApi:
+          path: /{ANY+}
+          method: ANY
+
+package:
+  patterns:
+    - "!src/**"
+    - "!test/**"
+
+plugins:
+  - serverless-offline
